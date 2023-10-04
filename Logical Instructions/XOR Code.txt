@@ -1,0 +1,16 @@
+section .text
+        global _start
+
+_start: 
+        mov eax,[var]       
+        xor eax, eax        ;XOR to clear register
+        mov [result], eax
+
+        mov eax,1
+        int 0x80
+        
+section .data
+        var DD 8            ;assign 8 to var
+
+segment .bss
+        result resb 1       ;uninitialized variable

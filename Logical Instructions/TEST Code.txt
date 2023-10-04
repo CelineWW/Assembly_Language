@@ -1,0 +1,47 @@
+section .text
+        global _start
+
+_start: 
+        mov eax,[var]       
+        test eax,1 
+        jz even
+        
+        mov dl,[var2]         ;if odd, save <result = var * 2> and display "Odd Number"
+        mul dl
+        mov [result], eax
+        
+        mov eax,4            
+        mov ebx,1
+        mov ecx,msg1
+        mov edx,len1
+        int 0x80
+        
+        mov eax,1
+        int 0x80
+ 
+even:                         ;if even, save <result = var/ 2> and display "Even Number"
+
+        mov bl,[var2]         
+        div bl
+        mov [result], eax
+        
+        mov eax,4 
+        mov ebx,1
+        mov ecx,msg2
+        mov edx,len2
+        int 0x80
+        
+        mov eax,1
+        int 0x80
+        
+section .data
+        var DD 8            ;assign value to var
+        var2 DD 2
+        msg1 db 'Odd Number', 0xa
+        len1 equ $ - msg1
+        msg2 db 'Even Number', 0xa
+        len2 equ $ - msg2
+        
+        
+segment .bss
+        result resb 1       ;uninitialized variable
