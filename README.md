@@ -84,3 +84,16 @@ segment .bss
 
 ```
 ![w6_4](https://github.com/CelineWW/Assembly_Language/blob/main/Arithmetic/w6_4.png)
+
+## Logical Instructions
+Logical Instructions: AND, OR, XOR, TEST, NOT.
+Use GDB to debugging and checking register process.
+
+- XOR to clear register.
+    ![W7_after xor.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Logical%20Instructions/W7_after%20xor.png)
+
+- TEST to distinguish odd and even number.
+    If odd(var=5), then multiple 2, save to result (10), and print "Odd number" on console.
+    ![W7_odd*2_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Logical%20Instructions/W7_odd*2_2.png)
+    If even(var=8), then divide 2, save to result (4), and print "Even number" on console.
+    ![W7_even:2_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Logical%20Instructions/W7_even%3A2_2.png)
