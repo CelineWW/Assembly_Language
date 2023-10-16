@@ -97,3 +97,45 @@ Use GDB to debugging and checking register process.
     ![W7_odd*2_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Logical%20Instructions/W7_odd*2_2.png)
     If even(var=8), then divide 2, save to result (4), and print "Even number" on console.
     ![W7_even:2_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Logical%20Instructions/W7_even%3A2_2.png)
+
+
+## Conditional Instructions
+Using conditional jumps to skip code or execute code backward steps.
+- Generate a sequence of odd numbers from 1 to 20.
+```_start:
+        mov eax,0
+    
+label:
+        inc eax
+        test eax,1	;test if eax is odd(1) or even(0).
+        jnz odd
+
+        cmp eax,20
+        jl label
+        je exit
+
+odd:
+        mov [odds],eax	;save value to odds if it is an odd number
+        jmp label
+
+exit:
+        mov eax,1
+        int 0x80
+```
+
+ ![W9_odds_console.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Conditional%20Instructions/W9_odds_console.png)
+
+- Find the largest number among the five integer numbers.
+```
+_start:
+	mov eax,[num1]
+    	cmp eax,[num2]	
+    	jg label1
+    	mov eax,[num2]	;replace eax with num2 if num2 > num1
+    
+label1: 
+    	cmp eax,[num3]
+   	jg label2
+    	mov eax,[num3]	;replace eax with num3 if num3 > eax
+```
+![W9_max_console.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Conditional%20Instructions/W9_max_console.png)
