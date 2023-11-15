@@ -1,0 +1,81 @@
+W10_1: Generate a counter using an EBX register to increment eax from 0 to 10.
+
+section .text
+        global _start
+
+_start: 
+        mov ebx,10
+        mov eax,0
+
+compare:
+        cmp ebx,0	
+        jg label	
+        jmp exit
+
+label:  
+        inc eax
+    	dec ebx
+        jmp compare
+
+exit:
+        mov eax,1
+        int 0x80
+
+
+W10_2: Calculate the final number of the first 10 Fibonacci numbers starting from 0. The result should be equal to 55.
+
+section .text
+	global _start
+
+_start:
+	mov ecx,10
+	mov eax,1	;second Fibonacci number 
+	mov ebx,0	;first Fibonacci number
+label:
+	mov edx,eax	;temporarily save second last number to edx
+	add eax,ebx	;add last two numbers and save to eax, now eax is the last number
+	mov ebx,edx	;move back edx to ebx, now ebx is the second last number 
+	loop label	;loop label block for 10 times
+	
+	mov [result],ebx
+	mov eax,1
+	int 0x80
+
+segment .bss
+	result resb 1
+
+W10_3:Define the array with length 3 and, type integer, find the largest element in the array. 
+
+section .text
+	global _start
+
+_start:
+	mov eax,4	;initialize eax to be array size 
+	mov ebx,0
+    	mov edx,0
+	mov ecx,array	;move array address from memory to register
+
+replace:
+    	mov edx,ebx	;if ebx is greater than edx, replace edx with ebx
+    	jmp loop
+    
+loop:
+	mov ebx,[ecx]
+    	cmp ebx,edx     ;compare ebx and edx
+   	jg replace
+	add ecx,4	;move pointer to next element
+	dec eax		;go to next element
+	jnz loop
+
+    	mov [result],edx  ;save largest number of the array into result variable
+    
+	mov eax,1
+	int 0x80
+
+section .data
+	array DD 2,5,3,7
+
+segment .bss
+	result resb 1
+
+Challenge: Code orders of jumping between replace block (Updating largest number) and loop block (loop through array elements) was a bit confusing. 

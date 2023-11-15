@@ -1,0 +1,141 @@
+
+W12 activity - Functions
+
+Assign a number to a register or a variable, pass a number to the function and display the result, 'odd' or 'even'. The result should be displayed on the console. The function should check whether the number is an even or an odd number.
+
+
+********************************* Code Start *********************************
+
+_foobar:               ;take 1 argument to check it is odd or even 
+	push ebp
+	mov ebp,esp    ;move base pointer to the top of stack
+	mov eax,DWORD[ebp+8]  
+    	test eax,1
+    	jz even        ;if eax is even, AND operation return value 0
+    	jnz odd	       ;if eax is odd, AND operation return value 1
+
+odd:
+    	mov eax,4
+    	mov ebx,1
+    	mov ecx,msg1   ;print message 'Odd' on the console
+    	mov edx,len1
+    	int 0x80
+    	leave         
+    	ret            ;pointer return to the function address
+
+even:
+    	mov eax,4
+    	mov ebx,1
+    	mov ecx,msg2.  ;print message 'Even' on the console
+    	mov edx,len2
+    	int 0x80
+    	leave
+    	ret            ;pointer return to the function address
+
+section .text
+	global _start
+
+_start:
+	push 5
+	call _foobar
+
+    	mov ebx,0
+	mov eax,1
+	int 0x80
+
+section .data
+    msg1 db 'Odd',0xa
+    len1 equ $ - msg1
+    msg2 db 'Even',0xa
+    len2 equ $ - msg2
+
+********************************* Code End *********************************
+
+
+Challenge:  I thought while coding a function, 'leave' and 'ret' must be inside the function.  
+So I was struggling that how to jump back to the function after printed out the message. It turns out 'leave' and 'ret' can still return function value outside of the function block.
+
+---------------------------------------------------------------------------------------------------------
+Create a function that takes 3 arguments (integers) and returns the largest integer. Hint. You have already written a code that gives the largest number. Extend the code and use a function.
+
+********************************* Code Start *********************************
+_largest:
+	push ebp	
+	mov ebp,esp
+	sub esp,4
+	
+	mov eax,DWORD[ebp+16]
+	cmp eax,DWORD[ebp+12]          ;compare first two numbers, save larger one into eax
+	jg label
+	mov eax,DWORD[ebp+12]	      ;if DWORD[ebp+8] > eax, replace eax with larger number
+
+label:				      
+	cmp eax,DWORD[ebp+8] 	      ;compare second two numbers, save larger one into eax
+	jg exit
+	mov eax,DWORD[ebp+8]	      ;if DWORD[ebp+4] > eax, replace eax with larger number
+	
+exit:
+	mov DWORD[ebp-4],eax
+	leave 
+	ret
+
+section .text
+	global _start
+
+_start:
+	push 5			       ;add 3 parameters
+	push 10
+	push 20
+	call _largest		       ;call the function
+
+	mov ebx,0
+	mov eax,1
+	int 0x80		       ;exit the program
+
+********************************* Code End *********************************
+
+With Printing on console??
+
+********************************* Code Start *********************************
+
+
+_largest:
+	push ebp	
+	mov ebp,esp
+	sub esp,4
+	
+	mov eax,DWORD[ebp+16]
+	cmp eax,DWORD[ebp+8]          ;compare first two numbers, save larger one into eax
+	jg label
+	mov eax,DWORD[ebp+8]	      ;if DWORD[ebp+8] > eax, replace eax with larger number
+
+label:				      
+	cmp eax,DWORD[ebp+4] 	      ;compare second two numbers, save larger one into eax
+	jg exit
+	mov eax,DWORD[ebp+4]	      ;if DWORD[ebp+4] > eax, replace eax with larger number
+	
+exit:
+	mov DWORD[ebp-4],eax
+	mov eax,4
+	mov ebx,1
+	mov ecx,DWORD[ebp-4]           ;????????print a ?
+	mov edx,1
+	int 0x80
+	leave 
+	ret
+
+section .text
+	global _start
+
+_start:
+	push 2			       ;add 3 parameters
+	push 3
+	push 4
+	call _largest		       ;call the function
+
+	mov ebx,0
+	mov eax,1
+	int 0x80		       ;exit the program
+********************************* Code End *********************************
+
+

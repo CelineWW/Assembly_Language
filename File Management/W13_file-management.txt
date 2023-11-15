@@ -1,0 +1,110 @@
+
+W13 File management
+
+1. Create a text-based filecalled"quotes.txt" and add thefollowingcontents:
+
+To be, or not to be, that is the question.
+A fool thinks himself to be wise, but a wise man knows himself to be a fool.
+
+---------------------- W13_1 Code Start ---------------------------------
+section .text
+	global _start
+
+_start:
+	mov ecx, 0777o      ;set all permissions to rwx
+	mov ebx, filename
+	mov eax, 8          ;sys_creat
+	int 0x80
+	mov [fd_out], eax   ;save file descriptor
+    
+	mov eax, 5          ;sys_open
+	mov ebx, filename   ;put file descriptor into ebx
+	mov ecx, 2
+	mov edx, 0777o
+	int 0x80
+    
+	mov ebx, eax        ;put file descriptor into ebx
+	mov eax, 4          ;sys_write
+	mov ecx, content1
+	mov edx, len1
+	int 0x80
+    
+	mov ebx,[fd_out]    ;put file descriptor into ebx 
+	mov eax, 6          ;sys_close
+	int 0x80
+     
+	mov eax, 1          ;sys_reset
+	int 0x80
+    
+section .data
+	filename db 'quotes.txt',0h    ;the file to open,write and append
+	content1 db 'To be, or not to be, that is the question.', 0xa, 'A fool thinks himself to be wise, but a wise man knows himself to be a fool.', 0xa        ;text to write
+	len1 equ $ - content1
+    
+section .bss
+	fd_out resb 1
+
+
+---------------------- W13_1 Code End ---------------------------------
+
+2. Append the following quotes in the same file:
+
+Better three hours too soon than a minute too late. 
+No legacy is so rich as honesty.
+
+
+---------------------- W13_2 Code Start ---------------------------------
+
+section .text
+	global _start
+
+_start:    
+	mov eax, 5           ;sys_open
+	mov ebx, filename   ;put file descriptor into ebx
+	mov ecx, 2
+	mov edx, 0777o
+	int 0x80
+	mov [fd_out], eax   ;save file descriptor
+
+	mov eax, 19          ;sys_lseek
+	mov ebx, [fd_out]    ;put file descriptor into ebx
+	mov ecx, 0
+	mov edx, 2
+	int 0x80    
+ 
+	mov eax, 4          ;sys_write
+	mov ebx, [fd_out]   ;put file descriptor into ebx
+	mov ecx, content2
+	mov edx, len2
+	int 0x80
+    
+	mov ebx,[fd_out]    ;put file descriptor into ebx 
+	mov eax, 6          ;sys_close
+	int 0x80
+     
+	mov eax, 1          ;sys_reset
+	int 0x80
+    
+section .data
+	filename db 'quotes.txt',0h    ;the file to open,write and append
+	content2 db 'Better three hours too soon than a minute too late.', 0xa, 'No legacy is so rich as honesty.', 0xa       ;text to append
+	len2 equ $ - content2    
+section .bss
+	fd_out resb 1
+
+
+---------------------- W13_2 Code End ---------------------------------
+
+
+---------------------- quotes.txt Start -------------------------------
+To be, or not to be, that is the question.
+A fool thinks himself to be wise, but a wise man knows himself to be a fool.
+Better three hours too soon than a minute too late.
+No legacy is so rich as honesty.
+---------------------- quotes.txt End ---------------------------------
+
+------------------------ challenge  -----------------------------------
+1. If using file descriptor multiple times, Using local variable to save file descriptor is easier to do following steps (e.g. file close operation). 
+2. Not sure how to use sys_lseek at first. Because edx has to be a message length counter, ecx has to save the message content. Whereas at the same time, edx has to be used as reference position, ecx has to be the offset value. Solution: Use sys_lseek append setting, then use sys_write to write in text. 
+
+

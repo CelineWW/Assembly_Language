@@ -1,0 +1,44 @@
+W11 Procedures
+Generate English uppercase characters from A to Z. After every character, there must be a line feed. Use procedures and loops to optimize the code. Do not use gdb debugger. The executable file will run directly on the terminal. 
+
+section .text
+        global _start
+
+_start:
+        mov ecx,26
+        mov eax,65  ;initialize eax to ASCII=65 'A'
+
+label:
+        push ecx    ;ecx = 26 is saved in the stack
+        mov [temp],eax  
+        mov ecx,temp
+        push eax    ;eax = 65 is saved in the stack
+        call output
+        mov eax,10
+        mov [temp],eax
+        mov ecx,temp
+        call output
+        pop eax	    ;eax is removed from the stack and saved in the eax
+        pop ecx     ;ecx is removed from the stack and saved in the ecx
+        inc eax	    ;increment eax to be next ASCII code
+        loop label
+
+output:
+        mov eax,4
+        mov ebx,1
+        mov edx,1
+        int 0x80
+        ret
+
+        mov eax,1
+        int 0x80
+ 
+segment .bss
+        temp resb 1
+
+
+Challenges: 
+	1.I have being struggled with getting a segmentation fault error.
+	2.ecx is used to be a counter and message printout. eax used for storing data value and also as system write. So ecx/eax-push/pop is a must to save to stack.
+	2.print out message must use a pointer, not the value itself.
+
