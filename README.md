@@ -139,3 +139,177 @@ label1:
     	mov eax,[num3]	;replace eax with num3 if num3 > eax
 ```
 ![W9_max_console.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Conditional%20Instructions/W9_max_console.png)
+
+## Loops and Arrays
+1. Generate a counter using an EBX register to increment eax from 0 to 10.
+    ```
+    _start: 
+        mov ebx,10
+        mov eax,0
+
+    compare:
+        cmp ebx,0	
+        jg label	
+        jmp exit
+
+    label:  
+        inc eax
+    	dec ebx
+        jmp compare
+
+    exit:
+        mov eax,1
+        int 0x80
+    ```
+
+2. Calculate the final number of the first 10 Fibonacci numbers starting from 0. The result is confirmed to be 55 via GDB.
+    ```
+    _start:
+        mov ecx,10
+        mov eax,1	;second Fibonacci number 
+        mov ebx,0	;first Fibonacci number
+    label:
+        mov edx,eax	;temporarily save second last number to edx
+        add eax,ebx	;add last two numbers and save to eax, now eax is the last number
+        mov ebx,edx	;move back edx to ebx, now ebx is the second last number 
+        loop label	;loop label block for 10 times
+	
+        mov [result],ebx
+        mov eax,1
+        int 0x80
+    ```
+    ![w10_2_console.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Loops%20and%20Arrays/w10_2_console.png)
+
+3. Define the array with length 3 and, type integer, find the largest element in the array. 
+    ```
+    _start:
+        mov eax,4	;initialize eax to be array size 
+        mov ebx,0
+            mov edx,0
+        mov ecx,array	;move array address from memory to register
+
+    replace:
+            mov edx,ebx	;if ebx is greater than edx, replace edx with ebx
+            jmp loop
+        
+    loop:
+        mov ebx,[ecx]
+            cmp ebx,edx     ;compare ebx and edx
+        jg replace
+        add ecx,4	;move pointer to next element
+        dec eax		;go to next element
+        jnz loop
+
+            mov [result],edx  ;save largest number of the array into result variable
+        
+        mov eax,1
+        int 0x80
+
+    section .data
+        array DD 2,5,3,7
+    ```
+
+## Procedures
+    Generate English uppercase characters from A to Z. After every character, there is a line feed. Code optimized with procedures and loops.
+    ```
+    _start:
+        mov ecx,26
+        mov eax,65  ;initialize eax to ASCII=65 'A'
+
+    label:
+        push ecx    ;ecx = 26 is saved in the stack
+        mov [temp],eax  
+        mov ecx,temp
+        push eax    ;eax = 65 is saved in the stack
+        call output
+        mov eax,10
+        mov [temp],eax
+        mov ecx,temp
+        call output
+        pop eax	    ;eax is removed from the stack and saved in the eax
+        pop ecx     ;ecx is removed from the stack and saved in the ecx
+        inc eax	    ;increment eax to be next ASCII code
+        loop label
+
+    output:
+        mov eax,4
+        mov ebx,1
+        mov edx,1
+        int 0x80
+        ret
+    ```
+![W11_Procedures_AZ.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Procedures/W11_Procedures_AZ.png)
+
+
+## Functions
+1. Assign a number to a register or a variable, pass a number to the function and display the result, 'odd' or 'even'.
+    ```
+    _foobar:               ;take 1 argument to check it is odd or even 
+	push ebp
+	mov ebp,esp    ;move base pointer to the top of stack
+	mov eax,DWORD[ebp+8]  
+    	test eax,1
+    	jz even        ;if eax is even, AND operation return value 0
+    	jnz odd	       ;if eax is odd, AND operation return value 1
+
+odd:
+    	mov eax,4
+    	mov ebx,1
+    	mov ecx,msg1   ;print message 'Odd' on the console
+    	mov edx,len1
+    	int 0x80
+    	leave         
+    	ret            ;pointer return to the function address
+
+even:
+    	mov eax,4
+    	mov ebx,1
+    	mov ecx,msg2.  ;print message 'Even' on the console
+    	mov edx,len2
+    	int 0x80
+    	leave
+    	ret            ;pointer return to the function address
+    ```
+![W12_Odd_Run.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/Functions/W12_Odd_Run.png)
+
+2. Create a function that takes 3 arguments (integers) and returns the largest integer. 
+
+    ```
+    _largest:
+        push ebp	
+        mov ebp,esp
+        sub esp,4
+        
+        mov eax,DWORD[ebp+16]
+        cmp eax,DWORD[ebp+12]          ;compare first two numbers, save larger one into eax
+        jg label
+        mov eax,DWORD[ebp+12]	      ;if DWORD[ebp+8] > eax, replace eax with larger number
+
+    label:				      
+        cmp eax,DWORD[ebp+8] 	      ;compare second two numbers, save larger one into eax
+        jg exit
+        mov eax,DWORD[ebp+8]	      ;if DWORD[ebp+4] > eax, replace eax with larger number
+        
+    exit:
+        mov DWORD[ebp-4],eax
+        leave 
+        ret
+
+    section .text
+        global _start
+
+    _start:
+        push 5			       ;add 3 parameters
+        push 10
+        push 20
+        call _largest		       ;call the function
+
+        mov ebx,0
+        mov eax,1
+        int 0x80		       ;exit the program
+    ```
+## File Management
+1. Create a text-based filecalled"quotes.txt" and add contents.
+![W13_1.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/File%20Management/W13_1.png)
+2. Append quotes in the same file.
+![W13_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/File%20Management/W13_2.png)

@@ -94,7 +94,7 @@ _start:
 
 ********************************* Code End *********************************
 
-With Printing on console??
+Create a function to get largest number of 3 inputs.
 
 ********************************* Code Start *********************************
 
@@ -116,11 +116,6 @@ label:
 	
 exit:
 	mov DWORD[ebp-4],eax
-	mov eax,4
-	mov ebx,1
-	mov ecx,DWORD[ebp-4]           ;????????print a ?
-	mov edx,1
-	int 0x80
 	leave 
 	ret
 
