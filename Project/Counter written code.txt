@@ -1,0 +1,130 @@
+
+************************** fun_txt.asm start ************************
+
+; Create blank text file
+
+section .text
+	global _start
+
+_start:
+	mov ecx, 0777o
+	mov ebx, filename1
+	mov eax,8
+	int 0x80
+
+	mov ecx, 0777o
+	mov ebx, filename2
+	mov eax,8
+	int 0x80
+
+	mov eax,1
+	int 0x80
+
+section .data
+	filename1 db 'counter_fun.txt', 0h
+	filename2 db 'counter_rec.txt', 0h
+
+-------------------------  fun_txt.asm  end -------------------------
+
+
+*************************** abc.asm  start **************************
+
+; Print single digit number code
+
+section .text
+    global _start
+
+_start:
+    mov eax, [number]
+    add eax, '0'
+    mov [var], eax   ; covert to ASCII value in [var]
+
+    mov eax, 4       ; sys_write
+    mov ebx, 1       
+    mov ecx, var    
+    mov edx, 1       
+    int 0x80         
+
+    mov eax, 1       ; sys_exit
+    mov ebx, 0       
+    int 0x80         
+
+section .data
+    number dd 8   
+    ;len equ 1        
+
+section .bss
+    var resb 1       
+
+
+-------------------------  abc.asm  end -------------------------
+
+************************* fun.asm  start ************************
+
+
+_fun:
+	push ebp
+	mov ebp,esp
+	sub esp,4                 ;decrement counter
+	mov eax, DWORD[ebp+8]
+	dec eax
+	mov DWORD[ebp-4],eax
+	;add eax,'0'    
+	mov [counter],eax
+    
+	mov eax,5                 ;open file
+	mov ebx,filename
+	mov ecx,1
+	mov edx,0777o
+	int 0x80
+	mov [fd_out],eax
+
+	mov eax,19                ;append to file 
+	mov ebx,[fd_out]
+	mov ecx,0
+	mov edx,2
+	int 0x80
+    
+	mov eax,4                 ;write into file 
+	mov ebx,[fd_out]
+	mov ecx,counter
+	mov edx,1
+	int 0x80
+    
+        mov eax, 4                ;add newline
+        mov ebx, [fd_out]
+        mov ecx, newline
+        mov edx, 1
+        int 0x80
+    
+
+	mov eax,6                 ;close file
+	mov ebx,[fd_out]
+	int 0x80
+    
+	leave 
+	ret
+
+section .text
+	global _start
+
+_start:
+	push 9
+	call _fun
+	
+	mov ebx,0
+	mov eax,1
+	int 0x80
+
+section .data
+	filename db 'counter_fun.txt', 0h
+    	;len equ 5
+    	newline db 0xa
+
+
+section .bss
+	fd_out resb 1
+    	counter resb 1
+-------------------------  fun.asm  end -------------------------
+
+

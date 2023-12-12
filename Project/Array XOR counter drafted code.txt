@@ -1,0 +1,744 @@
+---------- multiple next_loop , call output -----------------
+section .text
+	global _start
+    
+_start:
+  
+;print 'Plain text: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg1
+	mov edx,len1 
+	int 0x80
+    
+;print plain text
+	mov ecx,5
+	mov eax,array
+    
+next:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next
+  
+    
+;print '\nKey: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg2
+	mov edx,len2 
+	int 0x80
+    
+;print key
+	mov ecx,5
+	mov eax,key
+    
+next_key:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next_key
+
+;print '\nEncrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg3
+	mov edx,len3 
+	int 0x80
+
+;print '\nDecrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg4
+	mov edx,len4 
+	int 0x80
+
+	mov eax,1
+	int 0x80
+    
+output:
+	mov eax,4
+	mov ebx,1
+	mov ecx,print
+	mov edx,1
+	int 0x80
+	ret
+
+section .data
+	array dd 'H','e','l','l','o'
+	key dd 'M','a','r','c','h'
+	msg1 db 'Plain text: '
+	len1 equ $ - msg1
+	msg2 db 0xa,'Key: '
+	len2 equ $ - msg2
+	msg3 db 0xa,'Encrypted text: '
+	len3 equ $ - msg3
+	msg4 db 0xa,'Decrypted text: '
+	len4 equ $ - msg4
+    
+section .bss
+	print resb 1
+
+---------- call next_loop  -----------------
+section .text
+	global _start
+    
+_start:
+  
+;print 'Plain text: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg1
+	mov edx,len1 
+	int 0x80
+    
+;print plain text
+	mov ecx,5
+	mov eax,array
+    call next_loop
+  
+    
+;print '\nKey: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg2
+	mov edx,len2 
+	int 0x80
+    
+;print key
+	mov ecx,5
+	mov eax,key
+    call next_loop
+
+;print '\nEncrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg3
+	mov edx,len3 
+	int 0x80
+
+;print '\nDecrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg4
+	mov edx,len4 
+	int 0x80
+
+	mov eax,1
+	int 0x80
+    
+output:
+	mov eax,4
+	mov ebx,1
+	mov ecx,print
+	mov edx,1
+	int 0x80
+	ret
+    
+next_loop:
+next:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next
+    ret
+
+section .data
+	array dd 'H','e','l','l','o'
+	key dd 'M','a','r','c','h'
+	msg1 db 'Plain text: '
+	len1 equ $ - msg1
+	msg2 db 0xa,'Key: '
+	len2 equ $ - msg2
+	msg3 db 0xa,'Encrypted text: '
+	len3 equ $ - msg3
+	msg4 db 0xa,'Decrypted text: '
+	len4 equ $ - msg4
+    
+section .bss
+	print resb 1
+
+
+
+
+    
+    
+label:
+	add ebx,[ecx]
+	add eax,[edx]
+
+	mov eax,4
+	mov ebx,1
+	mov edx,1
+	int 0x80
+    
+	xor eax,ecx
+
+	mov eax,4
+	mov ebx,1
+	mov edx,1
+	int 0x80
+
+	add ecx,4
+	add edx,4
+
+	jl label
+
+---------call output , no loop -------- 
+
+No loop
+	add ebx,[eax]
+	mov [print],ebx
+	call output
+    
+	mov eax,array
+	add eax,4
+	mov ebx,0
+	add ebx,[eax]
+	mov [print],ebx
+	call output
+
+
+
+-------generate encrypted message-------
+    
+;get encrypted message
+	mov eax,'H'
+	xor eax,'W'
+	;add eax,'0'
+	mov [encrypted],eax
+
+	mov eax,'e'
+	xor eax,'o'
+	;add eax,'0'
+	mov [encrypted + 1],eax
+    
+	mov eax,'l'
+	xor eax,'r'
+	;add eax,'0'
+	mov [encrypted + 2],eax
+
+	mov eax,'l'
+	xor eax,'l'
+	;add eax,'0'
+	mov [encrypted + 3],eax
+    
+	mov eax,'o'
+	xor eax,'d'
+	;add eax,'0'
+	mov [encrypted + 4],eax
+
+
+
+
+    
+xor_arrays:
+    mov eax,array  ; Load value from array1
+    xor eax,key  ; XOR with value from array2
+    mov [encrypted],eax  ; Store result in encrypted array
+    add eax,4      ; Move to the next element
+    add ebx,4      ; Move to the next element in array2
+    add encrypted,4  ; Move to the next element in encrypted array
+    loop xor_arrays
+
+
+
+;generate encrypted array
+    mov ecx,5    
+    mov eax,array
+    mov ebx,key
+    
+xor_next:
+    push eax
+    push ebx
+    xor eax,ebx
+    mov [encrypted],eax
+    add encrypted,4
+    pop eax
+    pop ebx
+    loop xor_next
+
+
+
+----------current code---------
+section .text
+	global _start
+    
+_start:
+  
+;print 'Plain text: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg1
+	mov edx,len1 
+	int 0x80
+    
+;print plain text
+	mov ecx,5
+	mov eax,array
+	call next_loop
+  
+    
+;print '\nKey: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg2
+	mov edx,len2 
+	int 0x80
+    
+;print key
+	mov ecx,5
+	mov eax,key
+	call next_loop
+
+;print '\nEncrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg3
+	mov edx,len3 
+	int 0x80
+    
+;get encrypted message
+	mov eax,'H'
+	xor eax,'W'
+	add eax,'0'
+	mov [encrypted],eax
+
+	mov eax,'e'
+	xor eax,'o'
+	add eax,'0'
+	mov [encrypted + 1],eax
+    
+	mov eax,'l'
+	xor eax,'r'
+	add eax,'0'
+	mov [encrypted + 2],eax
+
+	mov eax,'l'
+	xor eax,'l'
+	add eax,'0'
+	mov [encrypted + 3],eax
+    
+	mov eax,'o'
+	xor eax,'d'
+	add eax,'0'
+	mov [encrypted + 4],eax
+    
+;print encrypted 
+	;mov ecx,5
+	;mov eax,encrypted
+	;call next_loop
+
+;print '\nDecrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg4
+	mov edx,len4 
+	int 0x80
+    
+;print decrypted 
+	mov ecx,5
+	mov edx,0
+	mov eax,encrypted
+	mov ebx,key
+
+xor_array:
+	push eax
+	push ebx
+	push ecx
+	add edx,[eax]    
+	xor eax,ebx
+	mov [print],eax
+	call output
+	pop eax
+	pop ebx
+	add eax,4
+	add ebx,4
+	pop ecx
+	loop xor_array    
+
+	mov eax,1
+	int 0x80
+    
+output:
+	mov eax,4
+	mov ebx,1
+	mov ecx,print
+	mov edx,1
+	int 0x80
+	ret
+    
+newline:
+	mov eax,4
+	mov ebx,1
+	mov ecx,10
+	mov edx,1
+	int 0x80
+	ret
+    
+next_loop:
+next:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next
+    ret
+
+printHex:
+    ; Convert the value in EAX to hexadecimal and print
+    mov ecx, buffer      ; pointer to the buffer
+    mov ebx, 16          ; base: hexadecimal
+    call itoa            ; Call the subroutine to convert integer to ASCII
+    mov eax, 4           ; syscall: sys_write
+    mov ebx, 1           ; file descriptor: STDOUT
+    mov ecx, buffer      ; pointer to the buffer
+    mov edx, 3           ; number of bytes to write (including the null terminator)
+    int 0x80             ; Call kernel
+    ret
+
+itoa:
+    ; Convert the integer in EAX to ASCII and store in the buffer
+    mov edi, 16          ; divisor (base 16 for hexadecimal)
+    mov esi, ecx         ; destination buffer
+    mov eax, ebx         ; number to convert
+
+reverseLoop:
+    xor edx, edx         ; clear any previous remainder
+    div edi              ; divide EAX by 16, result in EAX, remainder in EDX
+    add dl, '0'          ; convert remainder to ASCII
+
+    ; Adjust ASCII values for letters A-F
+    cmp dl, '9'
+    jbe skipAdjustment
+    add dl, 7            ; adjust for letters A-F
+skipAdjustment:
+
+    dec esi              ; move buffer pointer backward
+    mov [esi], dl        ; store ASCII character in the buffer
+
+    test eax, eax        ; check if quotient is zero
+    jnz reverseLoop      ; if not, continue the loop
+
+    mov ecx, esi         ; set ECX to the beginning of the buffer
+    ret
+
+
+section .data
+	array dd 'H','e','l','l','o'
+	key dd 'W','o','r','l','d'
+	msg1 db 'Plain text: '
+	len1 equ $ - msg1
+	msg2 db 0xa, 'Key: '
+	len2 equ $ - msg2
+	msg3 db 0xa, 'Encrypted text: '
+	len3 equ $ - msg3
+	msg4 db 0xa, 'Decrypted text: '
+	len4 equ $ - msg4
+    
+section .bss
+	print resb 1
+	encrypted resb 5
+	buffer resb 3
+
+
+------------
+;print decrypted 
+	mov ecx,5
+	mov eax,encrypted
+	mov ebx,key
+xor_array:  
+	mov edx,0
+	push eax
+	push ebx
+	push ecx
+	add edx,[eax]
+	mov ecx,[ebx]
+	sub ecx,5
+	xor edx,ecx
+	add edx,'0'
+	mov [print],edx
+	call output
+	pop eax
+	pop ebx
+	pop ecx
+	add eax,4
+	add ebx,4
+	loop xor_array  
+
+
+1. Load the given data in A - register 
+2. Subtract 30 H from A - register 
+3. Compare the content of A - register with 0A H 
+4. If A < 0A H, jump to step6. Else proceed to next step 
+5. Subtract 07 H from A - register 
+6. Store the result 
+7. Terminate the program
+
+
+
+hexprint:
+    push ebp
+    mov ebp, esp    
+    mov ebx,4
+loop:
+    cmp ebx,0
+    jz exit
+    dec ebx
+    mov eax,4
+    mov ecx,3
+    sub ecx,ebx
+    mul ecx
+    
+    mov ecx,eax
+    mov eax,DWORD[ebp+4]
+    
+    shl eax,cl
+    shr eax,12
+    
+    cmp al,10
+    jl number
+    mov ah,55
+    jmp letter
+number:
+    mov ah,48
+letter:
+    add al,ah
+    mov ah,0x0e
+    int 0x80
+    jmp loop
+exit:
+    leave
+    ret 
+
+------lastest code -----
+section .text
+	global _start
+    
+_start:
+  
+;print 'Plain text: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg1
+	mov edx,len1 
+	int 0x80
+    
+;print plain text
+	mov ecx,5
+	mov eax,array
+	call next_loop
+  
+    
+;print '\nKey: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg2
+	mov edx,len2 
+	int 0x80
+    
+;print key
+	mov ecx,5
+	mov eax,key
+	call next_loop
+
+;print '\nEncrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg3
+	mov edx,len3 
+	int 0x80
+    
+;get encrypted message
+	mov eax,'H'
+	xor eax,'W'
+	mov [encrypted],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output 
+
+	mov eax,'e'
+	xor eax,'o'
+	mov [encrypted + 1],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output 
+    
+	mov eax,'l'
+	xor eax,'r'
+	mov [encrypted + 2],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+
+	mov eax,'l'
+	xor eax,'l'
+	mov [encrypted + 3],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+    
+	mov eax,'o'
+	xor eax,'d'
+	mov [encrypted + 4],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+    
+;print encrypted 
+	mov ecx,5
+	mov eax,encrypted
+	call next_loop
+
+;print '\nDecrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg4
+	mov edx,len4 
+	int 0x80
+    
+;print decrypted char1
+	mov eax,0x1F
+	;mov eax,[encrypted]
+	xor eax,'W'
+	mov [print],eax
+	call output
+    
+;print decrypted char2
+	mov eax,0x0A
+	;mov eax,[encrypted + 1]
+	xor eax,'o'
+	mov [print],eax
+	call output
+    
+;print decrypted char3
+	mov eax,0x1E
+	;mov eax,[encrypted + 2]
+	xor eax,'r'
+	mov [print],eax
+	call output
+    
+;print decrypted char4
+	;mov eax,0x00
+	mov eax,[encrypted + 3] 
+	xor eax,'l'
+	mov [print],eax
+	call output
+
+;print decrypted char4
+	;mov eax,0x0B
+	mov eax,[encrypted + 4]
+	xor eax,'d'
+	mov [print],eax
+	call output
+
+	mov eax,1
+	int 0x80
+ 
+hexprint:
+    push ebp
+    mov ebp, esp    
+    mov ebx,4
+loop:
+    cmp ebx,0
+    jz exit
+    dec ebx
+    mov eax,4
+    mov ecx,3
+    sub ecx,ebx
+    mul ecx
+    
+    mov ecx,eax
+    mov eax,DWORD[ebp+4]
+    
+    shl eax,cl
+    shr eax,12
+    
+    cmp al,10
+    jl number
+    mov ah,55
+    jmp letter
+number:
+    mov ah,48
+letter:
+    add al,ah
+    mov ah,0x0e
+    int 0x80
+    jmp loop
+exit:
+    leave
+    ret 
+
+output:
+	mov eax,4
+	mov ebx,1
+	mov ecx,print
+	mov edx,1
+	int 0x80
+	ret
+    
+newline:
+	mov eax,4
+	mov ebx,1
+	mov ecx,10
+	mov edx,1
+	int 0x80
+	ret
+    
+next_loop:
+next:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next
+	ret
+
+section .data
+	array dd 'H','e','l','l','o'
+	key dd 'W','o','r','l','d'
+	msg1 db 'Plain text: '
+	len1 equ $ - msg1
+	msg2 db 0xa, 'Key: '
+	len2 equ $ - msg2
+	msg3 db 0xa, 'Encrypted text: '
+	len3 equ $ - msg3
+	msg4 db 0xa, 'Decrypted text: '
+	len4 equ $ - msg4
+    
+section .bss
+	print resb 1
+	encrypted resb 5

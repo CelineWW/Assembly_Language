@@ -1,0 +1,213 @@
+
+************************** encrypt.asm start ************************
+
+section .text
+	global _start
+    
+_start:
+  
+;print 'Plain text: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg1
+	mov edx,len1 
+	int 0x80
+    
+;print plain text
+	mov ecx,5
+	mov eax,array
+	call next_loop
+  
+    
+;print '\nKey: '
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg2
+	mov edx,len2 
+	int 0x80
+    
+;print key
+	mov ecx,5
+	mov eax,key
+	call next_loop
+
+;print '\nEncrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg3
+	mov edx,len3 
+	int 0x80
+    
+;get encrypted message
+	mov eax,'H'
+	xor eax,'W'
+	mov [encrypted],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output 
+
+	mov eax,'e'
+	xor eax,'o'
+	mov [encrypted + 1],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output 
+    
+	mov eax,'l'
+	xor eax,'r'
+	mov [encrypted + 2],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+
+	mov eax,'l'
+	xor eax,'l'
+	mov [encrypted + 3],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+    
+	mov eax,'o'
+	xor eax,'d'
+	mov [encrypted + 4],eax
+	;push eax
+	;call hexprint
+	;mov [print],eax
+	;call output
+    
+;print encrypted 
+	mov ecx,5
+	mov eax,encrypted
+	call next_loop
+
+;print '\nDecrypted text:'
+	mov eax,4
+	mov ebx,1
+	mov ecx,msg4
+	mov edx,len4 
+	int 0x80
+    
+;print decrypted char1
+	mov eax,0x1F
+	;mov eax,[encrypted]
+	xor eax,'W'
+	mov [print],eax
+	call output
+    
+;print decrypted char2
+	mov eax,0x0A
+	;mov eax,[encrypted + 1]
+	xor eax,'o'
+	mov [print],eax
+	call output
+    
+;print decrypted char3
+	mov eax,0x1E
+	;mov eax,[encrypted + 2]
+	xor eax,'r'
+	mov [print],eax
+	call output
+    
+;print decrypted char4
+	;mov eax,0x00
+	mov eax,[encrypted + 3] 
+	xor eax,'l'
+	mov [print],eax
+	call output
+
+;print decrypted char4
+	;mov eax,0x0B
+	mov eax,[encrypted + 4]
+	xor eax,'d'
+	mov [print],eax
+	call output
+
+	mov eax,1
+	int 0x80
+ 
+hexprint:        
+    	push ebp
+    	mov ebp, esp    
+    	mov ebx,4
+loop:
+    	cmp ebx,0
+    	jz exit
+    	dec ebx
+    	mov eax,4
+    	mov ecx,3
+    	sub ecx,ebx
+    	mul ecx
+    	mov ecx,eax
+   	mov eax,DWORD[ebp+4]
+    
+    	shl eax,cl
+    	shr eax,12
+    
+    	cmp al,10
+    	jl number
+    	mov ah,55
+    	jmp letter
+number:
+    	mov ah,48
+letter:
+    	add al,ah
+    	mov ah,0x0e
+    	int 0x80
+    	jmp loop
+exit:
+    	leave
+    	ret 
+
+output:
+	mov eax,4
+	mov ebx,1
+	mov ecx,print
+	mov edx,1
+	int 0x80
+	ret
+    
+newline:
+	mov eax,4
+	mov ebx,1
+	mov ecx,10
+	mov edx,1
+	int 0x80
+	ret
+    
+next_loop:
+next:
+	mov ebx,0   
+	add ebx,[eax]  
+	mov [print],ebx  
+	push ecx
+	push eax
+	call output  
+	pop eax  
+	add eax,4
+	pop ecx
+	loop next
+	ret
+
+section .data
+	array dd 'H','e','l','l','o'
+	key dd 'W','o','r','l','d'
+	msg1 db 'Plain text: '
+	len1 equ $ - msg1
+	msg2 db 0xa, 'Key: '
+	len2 equ $ - msg2
+	msg3 db 0xa, 'Encrypted text: '
+	len3 equ $ - msg3
+	msg4 db 0xa, 'Decrypted text: '
+	len4 equ $ - msg4
+    
+section .bss
+	print resb 1
+	encrypted resb 5
+
+-------------------------  encrypt.asm  end -------------------------
+
+

@@ -1,0 +1,322 @@
+************************ Print single digit number code ************************
+Refer to: https://www.youtube.com/watch?v=quAQizvmVCQ
+Function To Print A Number - Assembly Programming
+-----------------
+section .text
+    global _start
+
+_start:
+    ; Load the value from [number] into eax
+    mov eax, [number]
+
+    ; Convert integer to ASCII (assuming it's a single-digit positive integer)
+    add eax, '0'
+
+    ; Store the ASCII value in [var]
+    mov [var], eax
+
+    ; Prepare system call for writing to stdout
+    mov eax, 4       ; sys_write system call number
+    mov ebx, 1       ; File descriptor 1 (stdout)
+    mov ecx, var     ; Pointer to the string
+    mov edx, 1       ; Length of the string
+    int 0x80         ; Invoke system call
+
+    ; Exit the program
+    mov eax, 1       ; sys_exit system call number
+    mov ebx, 0       ; Exit code 0
+    int 0x80         ; Invoke system call
+
+section .data
+    number dd 20      ; Assuming you want to print the number 5
+    len equ 1        ; Length of the string
+
+section .bss
+    var resb 1       ; Reserve 1 byte for the ASCII character
+
+------------------------- Print single digit number code -------------------------
+
+************************ fun.asm sys-append inside function ************************
+
+_fun:
+	push ebp
+	mov ebp,esp
+	sub esp,4                 ;decement counter
+	mov eax, DWORD[ebp+8]
+	dec eax
+	mov DWORD[ebp-4],eax
+	mov [counter],eax
+    
+	mov eax,5                 ;open file
+	mov ebx,filename
+	mov ecx,641
+	mov edx,0777o
+	int 0x80
+	mov [fd_out],eax
+
+	;mov eax,19        ;append to file 
+	;mov ebx,[fd_out]
+	;mov ecx,0
+	;mov edx,2
+	;int 0x80
+    
+	mov eax,4                 ;write into file 
+	mov ebx,[fd_out]
+	mov ecx,DWORD[ebp-4]
+	mov edx,4
+	int 0x80
+    
+    mov eax, 4                ;add newline
+    mov ebx, [fd_out]
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
+    
+
+	mov eax,6                 ;close file
+	mov ebx,[fd_out]
+	int 0x80
+    
+	leave 
+	ret
+
+section .text
+	global _start
+
+_start:
+	push 9
+	call _fun
+	
+	mov ebx,0
+	mov eax,1
+	int 0x80
+
+section .data
+	filename db 'counter_fun.txt', 0h
+    len equ 5
+    newline db 0xa
+
+
+section .bss
+	fd_out resb 1
+    counter resb 4
+
+------------------------- fun.asm sys-append inside function -------------------------
+
+************************ fun.asm sys-append outside function ************************
+
+_fun:
+	push ebp
+	mov ebp,esp
+	sub esp,4                 ;decement counter
+	mov eax, DWORD[ebp+8]
+	dec eax
+    
+	leave 
+	ret
+
+section .text
+	global _start
+
+_start:
+	push 9
+	call _fun
+    
+    add eax, '0'
+    mov [num], eax
+    
+	mov eax,5                 ;open file
+	mov ebx,filename
+	mov ecx,1
+	mov edx,0777o
+	int 0x80
+	mov [fd_out],eax
+
+	;mov eax,19               ;append to file 
+	;mov ebx,[fd_out]
+	;mov ecx,0
+	;mov edx,2
+	;int 0x80
+    
+	mov eax,4                 ;write into file 
+	mov ebx,[fd_out]
+	mov ecx,num
+	mov edx,4
+	int 0x80
+    
+	mov eax, 4                ;add newline
+	mov ebx, [fd_out]
+	mov ecx, newline
+	mov edx, 1
+	int 0x80
+    
+	mov eax,6                 ;close file
+	mov ebx,[fd_out]
+	int 0x80
+	
+	mov ebx,0
+	mov eax,1
+	int 0x80
+
+section .data
+	filename db 'counter_fun.txt', 0h
+	;len equ $ num
+	newline db 0xa
+
+
+section .bss
+	fd_out resb 1
+	counter resb 4
+	num resb 4
+    
+
+
+------------------------- fun.asm sys-append outside function -------------------------
+
+
+
+************************ fun.asm generate 20000 counter ************************
+
+section .data
+    newline db 10       ; ASCII code for newline character
+    format db "%d", 0   ; Format specifier for printing integers
+
+section .text
+    global _start
+
+_start:
+    ; Loop to generate and print numbers from 0 to 20000
+    mov ecx, 20001      ; Number of iterations (0 to 20000)
+    xor eax, eax        ; Initialize counter to 0
+
+generate_loop:
+    ; Convert the current number to ASCII and print
+    mov ebx, eax        ; Copy the current number to ebx
+    lea ecx, [var]      ; Pointer to the buffer
+    call int_to_str     ; Convert integer to string
+    call print_string   ; Print the string
+
+    ; Print a newline character
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
+
+    ; Increment the counter
+    inc eax
+
+    ; Check if we reached 20001 iterations
+    loop generate_loop
+
+    ; Exit the program
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
+
+; Function to convert an integer to a string
+int_to_str:
+    pusha               ; Save registers
+
+    mov edi, ecx        ; Set edi to the start of the buffer
+    add edi, 10         ; Move the pointer to the end of the buffer
+    mov byte [edi], 0   ; Null-terminate the string
+
+convert_loop:
+    dec edi             ; Move the pointer backwards
+    xor edx, edx        ; Clear any previous remainder
+    div ebx             ; Divide eax by 10, result in eax, remainder in edx
+    add dl, '0'         ; Convert the remainder to ASCII
+    mov [edi], dl       ; Store the ASCII character in the buffer
+    test eax, eax       ; Check if quotient is zero
+    jnz convert_loop    ; If not, continue the loop
+
+    popa                ; Restore registers
+    ret
+
+; Function to print a null-terminated string
+print_string:
+    mov eax, 4           ; sys_write system call number
+    mov ebx, 1           ; File descriptor 1 (stdout)
+    mov ecx, var         ; Pointer to the string
+    mov edx, 10          ; Assume a maximum length of 10 characters
+    int 0x80             ; Invoke system call
+    ret
+
+section .bss
+    var resb 11          ; Reserve 11 bytes for the ASCII string (including null terminator)
+
+------------------------- fun.asm generate 20000 counter -------------------------
+
+
+section .data
+    output db "Number: ", 0
+    format db "%d", 0
+    newline db 10
+
+section .text
+    global _start
+
+_start:
+    ; Set the value to 20000 (replace with your integer)
+    mov eax, 20000
+
+    ; Print the string "Number: "
+    mov edx, 8
+    mov ecx, output
+    mov ebx, 1      ; File descriptor for stdout
+    mov eax, 4      ; System call number for sys_write
+    int 0x80        ; Call kernel
+    
+        ; Print the integer value
+    mov eax, 20000  ; Replace this with your integer
+    push eax        ; Preserve the integer value on the stack
+    mov ebx, 1    ; Pointer to the integer value on the stack
+    mov ecx, esp ; Format specifier
+    mov edx, 10     ; Length of the format string
+    mov eax, 4      ; System call number for sys_write
+    int 0x80        ; Call kernel
+    add esp, 4      ; Clean up the stack
+
+
+    ; Print the integer value
+    mov ebx, 1    ; Pointer to the integer value on the stack
+    mov ecx, format ; Format specifier
+    mov edx, 10     ; Length of the format string
+    mov eax, 4      ; System call number for sys_write
+    int 0x80        ; Call kernel
+    add esp, 4      ; Clean up the stack
+
+    ; Print a newline character
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
+
+    ; Exit the program
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
+
+
+
+
+_printnumber:
+	push ebp
+	mov ebp,esp
+	sub esp,4                 ;decement counter
+	mov eax, DWORD[ebp+8]
+	dec eax
+	mov DWORD[ebp-4],eax
+	mov [counter],eax
+
+	mov eax, 4
+	mov ebx, 1	
+	mov ecx, var
+	mov edx, len
+
+	int 0x80
+    
+	leave
+	ret

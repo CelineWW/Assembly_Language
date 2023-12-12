@@ -313,3 +313,42 @@ even:
 ![W13_1.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/File%20Management/W13_1.png)
 2. Append quotes in the same file.
 ![W13_2.png](https://github.com/CelineWW/Assembly_Language_Programming/blob/main/File%20Management/W13_2.png)
+
+## Project
+### XOR operation
+Encrypt and decrypt using an XOR logical operator.
+- √  1. Initialize some title messages. Such as “Plain Text: “.
+- √  2. Initialize an array “array”  to store a split secret message word “Hello”.
+- √  3. Initialize another array “key” to store a split secret message word “World”.
+- √  4. Print all title messages.
+- √  5. Create “output” procedure to print single character.
+- √  6. Create “next_loop” to loop through array and call “output” to print them out.
+- √  7. Call “next_loop” to print “array” array (“Hello”) and “key” array (“World”) on terminal.
+- √  8. Use XOR operation to get result and store them into an uninitialized array “encrypted”.
+- ?  9. Print the encrypted message in hexadecimal.    
+    - – No external resources allowed, Such as YouTube. 
+    - – Multiple attempts applied but failed.
+    - – Too late to cooperate find a teammate.
+- √  10. Print the encrypted message in ASCII character.   
+	- – Unprintable characters are not showing. 
+    - – Only newline character returns a new line.
+    - – Add values to elements will make them shown like English characters but must add different values. 
+    This will make code not generic. If add same values, still some of them are not English characters, which is weird and unnecessary.
+- √  11. Confirm the encrypted message by decryption.
+	- – perform XOR key array elements with manually calculated hexadecimal number.
+	- – perform XOR key array elements with complied encrypted elements in “encrypted” array.
+
+
+### Counter written
+Write a function and recursion to count to 20000 and analyze the performance of time consuming.
+- √  1. Create blank files to hold output.       <counter_txt.asm>
+- √  2. Print a single digit number 8 from variable on terminal.     <abc.asm>     
+- ?  3. Print a multiple digit number 20000 from variable on terminal.
+- ?  3. Create a function to decrement 9 to 8 and append it to the text file.   <fun.asm>
+- X  4. Modify the function to decrement number 9 to 0 and append them to the text file.
+- X  5. Modify the function to decrement number 20000 to 0 and append them to the text file.
+- X  5. Modify the function to decrement number 20000 to 0 and append them to the text file.
+- X  6. Calculate the execution time of function by using the time command.
+- X  7. Repeat 2-6 process above to create a recursion to generate the counter.
+- X  8. Calculate the execution time of recursion by using the time command.
+- X  9. Compare the code performance of function and recursion.
